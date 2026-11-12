@@ -1,0 +1,62 @@
+---
+/**
+ * Overlay « Vidéo 360° de nos grues » (Figma 230:5078 desktop / 230:5089 tablette / 230:5100 téléphone).
+ * Ouvrir avec n'importe quel élément portant data-video-360-ouvrir.
+ */
+interface Props {
+  titre?: string;
+  videoSrc?: string;
+}
+
+const { titre = 'Vidéo 360° de nos grues', videoSrc } = Astro.props;
+---
+
+<dialog
+  id="video-360"
+  aria-label={titre}
+  class="m-0 h-full max-h-none w-full max-w-none bg-ink p-0 backdrop:bg-ink open:flex"
+>
+  <div class="flex size-full flex-col items-center justify-center gap-5 px-4 md:px-8 lg:px-10">
+    <div class="flex h-11 w-full max-w-[1120px] items-center justify-between">
+      <p class="titre-4 text-white">{titre}</p>
+      <button
+        type="button"
+        data-video-360-fermer
+        aria-label="Fermer la vidéo"
+        class="flex size-11 cursor-pointer items-center justify-center rounded-full bg-white"
+      >
+        <img src="/ui/icone-fermer-video.svg" alt="" width="18" height="18" />
+      </button>
+    </div>
+
+    <div class="relative flex aspect-video w-full max-w-[1120px] flex-col items-center justify-center gap-4 overflow-hidden rounded-[24px]">
+      {
+        videoSrc ? (
+          <video src={videoSrc} controls class="absolute inset-0 size-full object-cover" />
+        ) : (
+          <>
+            <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+              <img src="/ui/video-poster.png" alt="" class="size-full object-cover" />
+              <div class="absolute inset-0 bg-ink" />
+            </div>
+            <span class="relative flex size-[72px] items-center justify-center rounded-full bg-red md:size-[88px]">
+              <img src="/ui/icone-lecture.svg" alt="" width="28" height="28" />
+            </span>
+            <p class="relative texte-label text-white">[Vidéo 360° à fournir par TTL Location]</p>
+          </>
+        )
+      }
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('video-360') as HTMLDialogElement | null;
+  document.querySelectorAll('[data-video-360-ouvrir]').forEach((el) =>
+    el.addEventListener('click', () => dialog?.showModal()),
+  );
+  dialog?.querySelector('[data-video-360-fermer]')?.addEventListener('click', () => {
+    dialog.querySelector('video')?.pause();
+    dialog.close();
+  });
+</script>

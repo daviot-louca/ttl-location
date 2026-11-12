@@ -1,0 +1,120 @@
+---
+/** Vitrine de l'UI kit (Figma « 00 · Composants, menus et états », 191:5153). */
+import Layout from '../layouts/Layout.astro';
+import EnTete from '../components/ui/EnTete.astro';
+import PiedDePage from '../components/ui/PiedDePage.astro';
+import Bouton from '../components/ui/Bouton.astro';
+import SelecteurLangue from '../components/ui/SelecteurLangue.astro';
+import BandeContact from '../components/ui/BandeContact.astro';
+import TuileService from '../components/ui/TuileService.astro';
+import QuestionFaq from '../components/ui/QuestionFaq.astro';
+import ChampTexte from '../components/ui/ChampTexte.astro';
+import MessageErreur from '../components/ui/MessageErreur.astro';
+import FormulaireSucces from '../components/ui/FormulaireSucces.astro';
+import Video360 from '../components/ui/Video360.astro';
+
+const couleurs = [
+  ['white', '#ffffff'],
+  ['ground', '#f3f1ee'],
+  ['soft', '#e4e1dc'],
+  ['light', '#d7d4cf'],
+  ['grey', '#c9c5bf'],
+  ['muted', '#4a4a48'],
+  ['btn2', '#3b3b3a'],
+  ['ghost', '#2e2e2d'],
+  ['ink', '#1e1e1d'],
+  ['red', '#a0211c'],
+  ['darkred', '#8e1c18'],
+];
+
+const styles = ['rouge', 'blanc', 'clair', 'sombre'] as const;
+---
+
+<Layout title="UI kit — TTL Location">
+  <EnTete />
+
+  <main class="mx-auto flex max-w-[1440px] flex-col gap-20 px-5 py-16 md:px-10">
+    <h1 class="titre-1">UI kit</h1>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Couleurs</h2>
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+        {
+          couleurs.map(([nom, hex]) => (
+            <div class="overflow-hidden rounded-[16px] bg-white">
+              <div class="h-20 border-b border-soft" style={`background:${hex}`} />
+              <div class="p-3 texte-xs">
+                <p class="font-semibold">{nom}</p>
+                <p class="text-muted">{hex}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Boutons</h2>
+      <div class="flex flex-col gap-4 rounded-bloc bg-white p-8">
+        {
+          styles.map((style) => (
+            <div class:list={['flex flex-wrap items-center gap-4 rounded-[20px] p-4', (style === 'blanc' || style === 'sombre') && 'bg-ink']}>
+              <Bouton label="Demander un devis" style={style} />
+              <Bouton label="Demander un devis" style={style} fleche />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Sélecteur de langue</h2>
+      <div class="flex flex-wrap items-center gap-6">
+        <div class="rounded-[20px] bg-white p-4"><SelecteurLangue /></div>
+        <div class="rounded-[20px] bg-ink p-4"><SelecteurLangue variante="sombre" active="de" /></div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Tuiles service</h2>
+      <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <TuileService titre="Levage" texte="Grues sur camion, tout-terrain et sur chenilles, de 14 à 52 m." />
+        <TuileService titre="Voirie" texte="Matériel pour travaux de voirie." />
+        <TuileService titre="Convoi exceptionnel" texte="Transport exceptionnel hors gabarit." />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Bande contact</h2>
+      <BandeContact />
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Question FAQ</h2>
+      <div class="flex max-w-[960px] flex-col gap-3">
+        <QuestionFaq question="Les grues sont-elles louées avec un opérateur ?" reponse="Réponse." />
+        <QuestionFaq question="Comment demander un devis ?" reponse="Réponse." ouvert />
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">États du formulaire</h2>
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <FormulaireSucces />
+        <form class="flex w-full max-w-[640px] flex-col items-start gap-4 rounded-bloc bg-white p-8 md:p-12" novalidate>
+          <MessageErreur />
+          <ChampTexte label="E-mail" name="email" type="email" requis valeur="jean.dupont@" erreur="Adresse e-mail invalide." />
+          <Bouton label="Réessayer" fleche type="submit" />
+        </form>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-6">
+      <h2 class="titre-3">Vidéo 360°</h2>
+      <div><Bouton label="Voir la vidéo 360°" style="clair" data-video-360-ouvrir /></div>
+    </section>
+  </main>
+
+  <Video360 />
+  <PiedDePage />
+</Layout>

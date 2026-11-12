@@ -1,0 +1,33 @@
+---
+/** Bande contact (Figma 64:477) : appel à l'action vers la page Contact, en bas de chaque page. */
+import Bouton from './Bouton.astro';
+import { ancres, contact } from '../../data/navigation';
+
+interface Props {
+  titre?: string;
+  texte?: string;
+  class?: string;
+}
+
+const {
+  titre = 'Un projet de chantier ?',
+  texte = 'Décrivez votre besoin, TTL Location vous répond par e-mail ou par téléphone.',
+  class: className,
+} = Astro.props;
+---
+
+<section
+  class:list={[
+    'flex flex-col items-start justify-between gap-8 rounded-bloc bg-red px-6 py-10 md:px-14 md:py-[60px] lg:flex-row lg:items-center',
+    className,
+  ]}
+>
+  <div class="flex flex-col gap-3.5 text-white">
+    <h2 class="titre-1">{titre}</h2>
+    <p class="texte-intro">{texte}</p>
+  </div>
+  <div class="flex flex-wrap gap-3">
+    <Bouton label="Contactez-nous" style="blanc" fleche href={ancres.contact} />
+    <Bouton label={contact.telephone} style="sombre" href={contact.telephoneHref} />
+  </div>
+</section>

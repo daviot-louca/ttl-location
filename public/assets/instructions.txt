@@ -1,0 +1,9 @@
+---
+
+Attention, pour la fluidité et l'amélioration de l'expérience utilisateurs, tous les fichiers ici devront être sous ces 3 extensions
+
+- .webp (pour les images et photos)
+- .webm (pour les vidéos)
+- .svg (pour les logos et dessins vectoriels)
+
+---

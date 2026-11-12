@@ -1,0 +1,72 @@
+---
+/**
+ * Tuile service (Figma 64:489) — accueil et page Services.
+ * Sans `image`, affiche le fond « soft » et la mention « [Photo à fournir] ».
+ * Sur la landing, la tuile renvoie vers le formulaire de contact (« Ça m'intéresse »).
+ * `cadrage` : recadrage Figma (styles inline de l'image en absolu) ; sinon object-cover.
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { ancres } from '../../data/navigation';
+
+interface Props extends HTMLAttributes<'a'> {
+  titre: string;
+  texte: string;
+  href?: string;
+  lienLabel?: string;
+  image?: string;
+  imageAlt?: string;
+  cadrage?: string;
+  class?: string;
+}
+
+const {
+  titre,
+  texte,
+  href = ancres.contact,
+  lienLabel = 'Ça m’intéresse',
+  image,
+  imageAlt = '',
+  cadrage,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['group flex w-full flex-col overflow-hidden rounded-carte bg-white', className]}
+  {...rest}
+>
+  <div class="relative h-[280px] w-full shrink-0 overflow-hidden bg-soft">
+    {
+      image ? (
+        <img
+          src={image}
+          alt={imageAlt}
+          style={cadrage ? `position:absolute;max-width:none;${cadrage}` : undefined}
+          class:list={[
+            'transition-transform duration-300 group-hover:scale-[1.03]',
+            !cadrage && 'size-full object-cover',
+          ]}
+          loading="lazy"
+        />
+      ) : (
+        <p class="absolute top-5 left-5 texte-label text-muted">[Photo à fournir]</p>
+      )
+    }
+  </div>
+  <div class="flex flex-col items-start gap-2.5 px-6 pt-[22px] pb-[26px]">
+    <h3 class="titre-3 text-ink">{titre}</h3>
+    <p class="texte text-muted">{texte}</p>
+    <span class="flex items-center gap-2 pt-1.5 texte-lien font-semibold text-red">
+      {lienLabel}
+      <img
+        src="/ui/fleche-rouge.svg"
+        alt=""
+        width="16"
+        height="16"
+        class="transition-transform group-hover:translate-x-1"
+      />
+    </span>
+  </div>
+</a>

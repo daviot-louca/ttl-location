@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import EnTeteAstroComponent from '../components/ui/EnTete.astro';
+import PiedDePage from '../components/ui/PiedDePage.astro';
+interface Props {
+	title?: string;
+}
+
+const { title = 'TTL Location' } = Astro.props;
+const langue = Astro.url.pathname.startsWith('/en/') ? 'en' : Astro.url.pathname.startsWith('/de/') ? 'de' : 'fr';
+
+---
+
+<html lang={langue}>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap"
+		/>
+		<title>{title}</title>
+	</head>
+	<body class="bg-ground">
+		<EnTeteAstroComponent />
+		<slot />
+		<PiedDePage />
+		{langue !== 'fr' && <script>
+			import { traductions } from '../data/traductions';
+			const langue = document.documentElement.lang as 'en' | 'de';
+			const dictionnaire = traductions[langue];
+			const traduire = (racine: ParentNode) => {
+				const parcours = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT);
+				while (parcours.nextNode()) {
+					const noeud = parcours.currentNode as Text;
+					const original = noeud.nodeValue ?? '';
+					const brut = original.trim();
+					const cle = brut.replace(/\s+/g, ' ');
+					if (dictionnaire[cle]) noeud.nodeValue = original.replace(brut, dictionnaire[cle]);
+				}
+				if (racine instanceof HTMLElement) {
+					for (const attribut of ['placeholder', 'aria-label', 'title', 'alt']) {
+						const valeur = racine.getAttribute(attribut);
+						if (valeur && dictionnaire[valeur]) racine.setAttribute(attribut, dictionnaire[valeur]);
+					}
+				}
+			};
+			traduire(document.body);
+			new MutationObserver((mutations) => mutations.forEach((mutation) => {
+				if (mutation.type === 'characterData' && mutation.target instanceof Text) {
+					const noeud = mutation.target;
+					const original = noeud.nodeValue ?? '';
+					const brut = original.trim();
+					const cle = brut.replace(/\s+/g, ' ');
+					if (dictionnaire[cle]) noeud.nodeValue = original.replace(brut, dictionnaire[cle]);
+				}
+				mutation.addedNodes.forEach((node) => {
+					if (node instanceof HTMLElement || node instanceof Text) traduire(node);
+				});
+			})).observe(document.body, { childList: true, characterData: true, subtree: true });
+		</script>}
+	</body>
+</html>

@@ -1,0 +1,56 @@
+---
+/**
+ * Champ de formulaire (Figma « Champ E-mail en erreur », 68:2244).
+ * Le message d'erreur est toujours rendu (vide et masqué par défaut) pour que
+ * la validation côté client puisse le remplir : [data-erreur-pour="<name>"].
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'input'>, 'type'> {
+  label: string;
+  name: string;
+  type?: 'text' | 'email' | 'tel' | 'date';
+  requis?: boolean;
+  valeur?: string;
+  placeholder?: string;
+  erreur?: string;
+  class?: string;
+}
+
+const {
+  label,
+  name,
+  type = 'text',
+  requis = false,
+  valeur,
+  placeholder,
+  erreur,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const id = `champ-${name}`;
+---
+
+<div class:list={['flex w-full flex-col gap-1.5', className]}>
+  <label for={id} class="texte-label text-ink">{label}{requis && ' *'}</label>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    value={valeur}
+    placeholder={placeholder}
+    required={requis}
+    aria-invalid={erreur ? 'true' : undefined}
+    aria-describedby={`${id}-erreur`}
+    class="h-[52px] w-full rounded-champ border-2 border-transparent bg-ground px-4 texte text-ink outline-none placeholder:text-muted focus:border-ink aria-invalid:border-red"
+    {...rest}
+  />
+  <p
+    id={`${id}-erreur`}
+    data-erreur-pour={name}
+    class:list={['texte-xs font-semibold text-red', !erreur && 'hidden']}
+  >
+    {erreur}
+  </p>
+</div>

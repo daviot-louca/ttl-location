@@ -1,0 +1,114 @@
+---
+/**
+ * Menu mobile plein écran (Figma 154:4233 tablette / 154:4289 téléphone).
+ * Téléphone : sous-liens en liste. Tablette : sous-liens en pastilles.
+ */
+import SelecteurLangue from './SelecteurLangue.astro';
+import { domaines, services, ancres, contact, type Langue } from '../../data/navigation';
+
+interface Props {
+  langue?: Langue;
+}
+
+const { langue = (Astro.url.pathname.startsWith('/en/') ? 'en' : Astro.url.pathname.startsWith('/de/') ? 'de' : 'fr') } = Astro.props;
+
+const rubriques = [
+  { titre: 'Nos domaines', href: ancres.domaines, liens: domaines },
+  { titre: 'Services', href: ancres.services, liens: services },
+];
+---
+
+<div
+  id="menu-mobile"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menu"
+  hidden
+  class="fixed inset-0 z-50 overflow-y-auto bg-ink lg:hidden"
+>
+  <div class="flex min-h-full flex-col gap-7 px-5 pt-3 pb-7 md:gap-10 md:px-10 md:pt-3.5 md:pb-10">
+    <div class="flex items-center justify-between py-0.5">
+      <a href="#top" class="block h-[37px] w-[76px] md:h-11 md:w-22.5" aria-label="TTL Location — haut de page">
+        <img src="/ui/logo-clair.png" alt="TTL Location" width="90" height="44" class="size-full object-contain" />
+      </a>
+      <button
+        type="button"
+        data-menu-fermer
+        aria-label="Fermer le menu"
+        class="flex size-12 cursor-pointer items-center justify-center rounded-full bg-white"
+      >
+        <img src="/ui/icone-fermer.svg" alt="" width="20" height="20" />
+      </button>
+    </div>
+
+    <div class="border-b border-ghost py-[18px] md:py-6">
+      <a href={ancres.aPropos} class="flex items-center justify-between">
+        <span class="titre-menu text-white">À propos</span>
+        <img src="/ui/fleche-menu-rouge.svg" alt="" width="22" height="22" />
+      </a>
+    </div>
+    <nav aria-label="Navigation principale" class="flex flex-col">
+      {
+        rubriques.map((rubrique) => (
+          <div class="flex flex-col gap-3.5 border-b border-ghost py-4.5 md:py-6">
+            <a href={rubrique.href} class="flex items-center justify-between">
+              <span class="titre-menu text-white">{rubrique.titre}</span>
+              <img src="/ui/fleche-menu.svg" alt="" width="22" height="22" />
+            </a>
+            <ul class="flex flex-col gap-1.5 md:flex-row md:flex-wrap md:gap-2.5">
+              {rubrique.liens.map((lien) => (
+                <li>
+                  <a
+                    href={lien.href}
+                    class="flex items-center gap-2.5 py-2 texte-bouton font-medium text-light transition-colors hover:text-white md:rounded-full md:bg-ghost md:px-4 md:py-2.5"
+                  >
+                    <img src="/ui/puce.svg" alt="" width="6" height="6" />
+                    {lien.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </nav>
+
+    <div class="flex-1"></div>
+
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <SelecteurLangue active={langue} variante="sombre" />
+        <a href={contact.telephoneHref} class="texte-lien font-semibold text-white md:texte-intro">
+          {contact.telephone}
+        </a>
+      </div>
+      <a
+        href={ancres.contact}
+        class="flex w-full items-center justify-center rounded-full bg-red px-[26px] py-4 texte-bouton text-white transition-colors hover:bg-darkred"
+      >
+        Contactez-nous
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const menu = document.getElementById('menu-mobile');
+  const ouvrir = document.querySelectorAll<HTMLButtonElement>('[data-menu-ouvrir]');
+
+  function basculer(ouvert: boolean) {
+    if (!menu) return;
+    menu.hidden = !ouvert;
+    document.documentElement.style.overflow = ouvert ? 'hidden' : '';
+    ouvrir.forEach((b) => b.setAttribute('aria-expanded', String(ouvert)));
+    if (ouvert) menu.querySelector<HTMLElement>('[data-menu-fermer]')?.focus();
+  }
+
+  ouvrir.forEach((b) => b.addEventListener('click', () => basculer(true)));
+  menu?.querySelector('[data-menu-fermer]')?.addEventListener('click', () => basculer(false));
+  // Lien d'ancre cliqué : on referme le menu pour laisser défiler vers la section.
+  menu?.querySelectorAll('a[href^="#"]').forEach((a) => a.addEventListener('click', () => basculer(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu && !menu.hidden) basculer(false);
+  });
+</script>

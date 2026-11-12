@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+/* Design tokens — Figma « TTL LOCATION — Landing page » (variables couleur/* et rayon/*) */
+@theme {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+
+  --color-white: #ffffff; /* blanc pur */
+  --color-ink: #1e1e1d; /* texte principal, presque noir */
+  --color-ground: #f3f1ee; /* fond de page, beige clair */
+  --color-soft: #e4e1dc; /* beige-gris clair : cartes, fonds secondaires */
+  --color-light: #d7d4cf; /* beige-gris moyen : séparateurs, bordures */
+  --color-grey: #c9c5bf; /* beige-gris plus foncé : bordures marquées */
+  --color-muted: #4a4a48; /* texte secondaire, gris foncé */
+  --color-btn2: #3b3b3a; /* gris très foncé : boutons secondaires */
+  --color-ghost: #2e2e2d; /* gris quasi noir : éléments sur fond sombre */
+  --color-dark: #2a2a29; /* anthracite : tuile « demande spécifique », bloc coordonnées */
+  --color-red: #a0211c; /* rouge de marque, bouton principal */
+  --color-darkred: #8e1c18; /* rouge foncé, survol (hover) du rouge */
+
+  --radius-bloc: 28px;
+  --radius-carte: 24px;
+  --radius-champ: 14px;
+
+  --shadow-menu: 0px 18px 48px 0px rgba(0, 0, 0, 0.14);
+}
+
+/*
+ * Styles de texte — une classe = taille + graisse + interligne + approche,
+ * mobile puis desktop (md). La couleur reste à part (text-ink, text-white…).
+ * Surchargeables avec font-*, leading-*, tracking-* quel que soit l'ordre des classes.
+ * Approche en em : reste proportionnelle quand la taille change.
+ */
+@utility titre-1 {
+  font-size: 34px;
+  font-weight: var(--tw-font-weight, 600);
+  letter-spacing: var(--tw-tracking, -0.035em);
+  @variant md {
+    font-size: 48px;
+  }
+}
+
+/* Titre du hero vidéo (64 px desktop). */
+@utility titre-hero {
+  font-size: 40px;
+  font-weight: var(--tw-font-weight, 600);
+  line-height: var(--tw-leading, 0.98);
+  letter-spacing: var(--tw-tracking, -0.035em);
+  @variant md {
+    font-size: 56px;
+  }
+  @variant lg {
+    font-size: 64px;
+  }
+}
+
+/* Grand titre éditorial (« Un partenaire de chantier… », 72 px desktop). */
+@utility titre-display {
+  font-size: 40px;
+  font-weight: var(--tw-font-weight, 600);
+  line-height: var(--tw-leading, 0.98);
+  letter-spacing: var(--tw-tracking, -0.035em);
+  @variant md {
+    font-size: 56px;
+  }
+  @variant lg {
+    font-size: 72px;
+  }
+}
+
+/* Titres de section de la landing (56 px desktop). */
+@utility titre-section {
+  font-size: 34px;
+  font-weight: var(--tw-font-weight, 600);
+  line-height: var(--tw-leading, 1.1);
+  letter-spacing: var(--tw-tracking, -0.035em);
+  @variant md {
+    font-size: 44px;
+  }
+  @variant lg {
+    font-size: 56px;
+    line-height: var(--tw-leading, normal);
+  }
+}
+
+/* Chiffres clés de la bande rouge (88 px desktop). */
+@utility chiffre {
+  font-size: 56px;
+  font-weight: var(--tw-font-weight, 300);
+  line-height: var(--tw-leading, 1);
+  letter-spacing: var(--tw-tracking, -0.04em);
+  @variant lg {
+    font-size: 88px;
+  }
+}
+
+@utility titre-menu {
+  font-size: 34px;
+  font-weight: var(--tw-font-weight, 600);
+  @variant md {
+    font-size: 44px;
+  }
+}
+
+@utility titre-2 {
+  font-size: 28px;
+  font-weight: var(--tw-font-weight, 600);
+  line-height: var(--tw-leading, 1.05);
+  letter-spacing: var(--tw-tracking, -0.035em);
+  @variant md {
+    font-size: 34px;
+  }
+}
+
+@utility titre-3 {
+  font-size: 26px;
+  font-weight: var(--tw-font-weight, 600);
+  letter-spacing: var(--tw-tracking, -0.02em);
+}
+
+@utility titre-4 {
+  font-size: 18px;
+  font-weight: var(--tw-font-weight, 600);
+  @variant md {
+    font-size: 20px;
+  }
+}
+
+@utility texte-question {
+  font-size: 17px;
+  font-weight: var(--tw-font-weight, 600);
+  @variant md {
+    font-size: 19px;
+  }
+}
+
+/* Paragraphe d'accroche (bandeau contact). */
+@utility texte-intro {
+  font-size: 18px;
+}
+
+/* Paragraphes. */
+@utility texte-lg {
+  font-size: 17px;
+  line-height: var(--tw-leading, 1.5);
+}
+
+@utility texte {
+  font-size: 16px;
+  line-height: var(--tw-leading, 1.5);
+}
+
+/* Boutons et CTA. */
+@utility texte-bouton {
+  font-size: 17px;
+  font-weight: var(--tw-font-weight, 600);
+}
+
+/* Liens de navigation. */
+@utility texte-lien {
+  font-size: 16px;
+  font-weight: var(--tw-font-weight, 500);
+}
+
+/* Labels de formulaire, mentions. */
+@utility texte-label {
+  font-size: 15px;
+  font-weight: var(--tw-font-weight, 500);
+}
+
+@utility texte-sm {
+  font-size: 15px;
+}
+
+@utility texte-xs {
+  font-size: 14px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Ancres one-page : compense l'en-tête sticky (86 px). */
+    scroll-padding-top: 86px;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Les textes Figma utilisent une interligne « normal ». */
+  body {
+    line-height: normal;
+    background-color: var(--color-ground);
+  }
+
+  /*
+   * Titres : style appliqué automatiquement selon la balise.
+   * Une classe titre-* sur la balise reste prioritaire (couche utilities).
+   */
+  h1 {
+    @apply titre-1;
+  }
+
+  h2 {
+    @apply titre-2;
+  }
+
+  h3 {
+    @apply titre-3;
+  }
+
+  h4 {
+    @apply titre-4;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+/* Apparition douce des cartes de domaines au défilement. */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-ready [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .motion-ready [data-reveal][data-reveal-delay="1"] {
+    transition-delay: 100ms;
+  }
+
+  .motion-ready [data-reveal][data-reveal-delay="2"] {
+    transition-delay: 200ms;
+  }
+
+  .motion-ready [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

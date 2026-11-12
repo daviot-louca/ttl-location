@@ -1,0 +1,71 @@
+---
+/** Pied de page V2 (Figma 64:443) : domaines, services, entreprise, pages légales, coordonnées, langue. */
+import SelecteurLangue from './SelecteurLangue.astro';
+import { domaines, services, ancres, contact, type Langue } from '../../data/navigation';
+
+interface Props {
+  langue?: Langue;
+}
+
+const { langue = (Astro.url.pathname.startsWith('/en/') ? 'en' : Astro.url.pathname.startsWith('/de/') ? 'de' : 'fr') } = Astro.props;
+
+const colonnes = [
+  { titre: 'Domaines', liens: domaines },
+  { titre: 'Nos solutions', liens: services },
+  {
+    titre: 'Entreprise',
+    liens: [
+      { label: 'À propos', href: ancres.aPropos },
+      { label: 'Contact', href: ancres.contact },
+    ],
+  },
+  // Pages légales : seules vraies pages hors landing (obligation légale).
+  {
+    titre: 'Informations',
+    liens: [
+      { label: 'Mentions légales', href: '/mentions-legales' },
+      { label: 'Politique de confidentialité', href: '/confidentialite' },
+    ],
+  },
+];
+---
+
+<footer class="bg-ink">
+  <div class="mx-auto flex max-w-[1440px] flex-col gap-12 px-5 pt-16 pb-8 md:px-10 lg:pt-[88px]">
+    <div class="flex flex-col gap-12 lg:flex-row lg:gap-16">
+      <a href="#top" class="block h-[72px] w-[147px] shrink-0" aria-label="TTL Location — haut de page">
+        <img src="/assets/logoFondFonce.svg" alt="TTL Location" width="147" height="72" class="size-full object-contain" />
+      </a>
+
+      <div class="grid flex-1 grid-cols-1 gap-10 texte-sm sm:grid-cols-2 lg:flex lg:justify-end lg:gap-14">
+        {
+          colonnes.map((col) => (
+            <div class="flex flex-col items-start gap-2.5">
+              <p class="font-semibold text-white">{col.titre}</p>
+              {col.liens.map((lien) => (
+                <a href={lien.href} class="text-light transition-colors hover:text-white">
+                  {lien.label}
+                </a>
+              ))}
+            </div>
+          ))
+        }
+        <address class="flex flex-col items-start gap-2.5 not-italic">
+          <p class="font-semibold text-white">TTL LOCATION</p>
+          {contact.adresse.map((ligne) => <p class="text-light">{ligne}</p>)}
+          <a href={contact.telephoneHref} class="text-light hover:text-white">{contact.telephone}</a>
+          <a href={`mailto:${contact.email}`} class="text-light hover:text-white">{contact.email}</a>
+          <a href="https://www.instagram.com/ttl_location/" class="text-light hover:text-white">
+            Instagram : {contact.instagram}
+          </a>
+          <a href={`https://${contact.site}`} class="text-light hover:text-white">{contact.site}</a>
+        </address>
+      </div>
+    </div>
+
+    <div class="flex flex-col-reverse items-start justify-between gap-6 sm:flex-row sm:items-center">
+      <p class="texte-xs text-light">© 2026 TTL LOCATION · [N° RCS / TVA]</p>
+      <SelecteurLangue active={langue} />
+    </div>
+  </div>
+</footer>

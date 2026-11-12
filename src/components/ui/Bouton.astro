@@ -1,0 +1,74 @@
+---
+/**
+ * Bouton pilule TTL (Figma « Bouton », 2:49).
+ * Rouge = action principale, Blanc = sur fond sombre, Clair = secondaire, Sombre = sur anthracite.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Style = 'rouge' | 'blanc' | 'clair' | 'sombre';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'style'> {
+  label: string;
+  style?: Style;
+  fleche?: boolean;
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  pleineLargeur?: boolean;
+  class?: string;
+}
+
+const {
+  label,
+  style = 'rouge',
+  fleche = false,
+  href,
+  type = 'button',
+  pleineLargeur = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const couleurs: Record<Style, string> = {
+  rouge: 'bg-red text-white hover:bg-darkred',
+  blanc: 'bg-white text-ink hover:bg-ground',
+  clair: 'bg-ground text-ink hover:bg-soft',
+  sombre: 'bg-btn2 text-white hover:bg-ghost',
+};
+
+// Pastille de la flèche : blanche sur bouton rouge, rouge sur les autres.
+const pastilleRouge = style !== 'rouge';
+
+const classes = [
+  'inline-flex items-center rounded-full texte-bouton whitespace-nowrap transition-colors cursor-pointer',
+  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red',
+  fleche ? 'gap-3 py-2 pl-[26px] pr-2' : 'px-[26px] py-4',
+  pleineLargeur && 'w-full justify-center',
+  couleurs[style],
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class={classes} href={href} type={href ? undefined : type} {...rest}>
+  <span>{label}</span>
+  {
+    fleche && (
+      <span
+        class:list={[
+          'flex size-9 shrink-0 items-center justify-center rounded-[18px]',
+          pastilleRouge ? 'bg-red' : 'bg-white',
+        ]}
+      >
+        <img
+          src={pastilleRouge ? '/ui/fleche-blanche.svg' : '/ui/fleche-rouge.svg'}
+          alt=""
+          width="16"
+          height="16"
+        />
+      </span>
+    )
+  }
+</Tag>

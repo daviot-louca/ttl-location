@@ -1,0 +1,355 @@
+---
+/**
+ * Formulaire de contact en 4 étapes (Figma 228:5501 / 228:5585 / 228:5671 / 228:5746).
+ * 1. Domaine (choix unique) · 2. Solutions (choix multiple) · 3. Projet · 4. Coordonnées.
+ *
+ * Présélection depuis la page : tout élément [data-preselection="domaine:<valeur>"] ou
+ * [data-preselection="solution:<valeur>"] coche l'option au clic ; [data-grue="<nom>"]
+ * pré-remplit la description.
+ *
+ * Envoi : si `action` est renseigné, les données partent en POST (FormData) vers cette URL ;
+ * sinon (pas encore de back-end) l'overlay de confirmation s'affiche directement.
+ */
+import Bouton from './Bouton.astro';
+import ChampTexte from './ChampTexte.astro';
+import MessageErreur from './MessageErreur.astro';
+import FormulaireSucces from './FormulaireSucces.astro';
+import { optionsDomaine, optionsSolution } from '../../data/landing';
+
+interface Props {
+  action?: string;
+  class?: string;
+}
+
+const { action, class: className } = Astro.props;
+
+const etapes = ['Domaine', 'Solutions', 'Projet', 'Coordonnées'];
+
+const titres = [
+  { titre: 'Qui êtes-vous ?', texte: 'Nous adaptons notre réponse à votre secteur.' },
+  { titre: 'Comment pouvons-nous vous aider ?', texte: 'Choisissez une ou plusieurs solutions.' },
+  { titre: 'Racontez-nous votre chantier', texte: 'Plus vous êtes précis, plus notre réponse sera adaptée.' },
+  { titre: 'Où pouvons-nous vous répondre ?', texte: 'Nous vous recontactons par e-mail ou par téléphone.' },
+];
+
+// Carte d'option (radio / case) : fond ground + bordure soft ; cochée : fond blanc + bordure rouge 2 px.
+const option =
+  'group flex cursor-pointer items-center gap-3.5 rounded-[18px] border border-soft bg-ground p-[18px] transition-colors hover:border-light has-checked:border-red has-checked:bg-white has-checked:ring-1 has-checked:ring-red has-checked:ring-inset has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-red';
+---
+
+<form
+  id="formulaire-contact"
+  method="post"
+  action={action}
+  enctype="multipart/form-data"
+  novalidate
+  data-etape="1"
+  class:list={['flex flex-col gap-6 rounded-bloc bg-white p-6 md:p-12', className]}
+>
+  <!-- Progression -->
+  <ol class="flex gap-2.5" aria-label="Progression du formulaire">
+    {
+      etapes.map((nom, i) => (
+        <li class="flex flex-1 flex-col gap-2" data-indicateur={i + 1}>
+          <span data-barre class:list={['h-1 w-full rounded-[4px]', i === 0 ? 'bg-red' : 'bg-soft']} />
+          <span
+            data-libelle
+            class:list={[
+              'hidden text-[13px] sm:block',
+              i === 0 ? 'font-semibold text-ink' : 'font-medium text-muted',
+            ]}
+          >
+            {i + 1}. {nom}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    titres.map(({ titre, texte }, i) => (
+      <fieldset data-panneau={i + 1} hidden={i !== 0} class="flex min-w-0 flex-col gap-6">
+        <legend class="contents">
+          <span class="flex flex-col gap-1.5" tabindex="-1" data-titre-etape>
+            <span class="texte-xs font-semibold text-red">Étape {i + 1} sur 4</span>
+            <span class="text-[26px] leading-[1.15] font-semibold text-ink md:text-[32px]">{titre}</span>
+            <span class="texte text-muted">{texte}</span>
+          </span>
+        </legend>
+
+        {i === 0 && (
+          <div class="grid gap-3 sm:grid-cols-2">
+            {optionsDomaine.map((o) => (
+              <label class={option}>
+                <input type="radio" name="domaine" value={o.valeur} class="sr-only" />
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white transition-colors group-has-checked:bg-red">
+                  <span
+                    aria-hidden="true"
+                    class="size-[22px] bg-ink transition-colors group-has-checked:bg-white"
+                    style={`mask:url('${o.icone}') center/contain no-repeat;-webkit-mask:url('${o.icone}') center/contain no-repeat`}
+                  />
+                </span>
+                <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span class="texte font-semibold text-ink">{o.titre}</span>
+                  <span class="texte-xs text-muted">{o.texte}</span>
+                </span>
+                <span class="relative size-[22px] shrink-0">
+                  <span class="absolute inset-0 rounded-full border-[1.5px] border-light bg-white group-has-checked:hidden" />
+                  <img src="/ui/formulaire/radio-actif.svg" alt="" width="22" height="22" class="hidden group-has-checked:block" />
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        {i === 1 && (
+          <div class="grid gap-3 sm:grid-cols-2">
+            {optionsSolution.map((o) => (
+              <label class={option}>
+                <input type="checkbox" name="solutions" value={o.valeur} class="sr-only" />
+                <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span class="texte font-semibold text-ink">{o.titre}</span>
+                  <span class="texte-xs text-muted">{o.texte}</span>
+                </span>
+                <span class="flex size-[22px] shrink-0 items-center justify-center rounded-md border-[1.5px] border-light bg-white group-has-checked:border-red group-has-checked:bg-red">
+                  <img src="/ui/formulaire/case-coche.svg" alt="" width="16" height="16" class="hidden group-has-checked:block" />
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        {i === 2 && (
+          <>
+            <div class="flex flex-col gap-1.5">
+              <label for="champ-description" class="texte-label text-ink">Description du projet *</label>
+              <textarea
+                id="champ-description"
+                name="description"
+                required
+                aria-describedby="champ-description-erreur"
+                placeholder="Ex. : pose d’une coque de piscine dans un jardin, accès par la rue, poids estimé…"
+                class="h-[150px] w-full resize-y rounded-champ border-2 border-transparent bg-ground p-4 texte text-ink outline-none placeholder:text-muted focus:border-ink aria-invalid:border-red"
+              />
+              <p id="champ-description-erreur" data-erreur-pour="description" class="hidden texte-xs font-semibold text-red" />
+            </div>
+            <div class="flex flex-col gap-3.5 sm:flex-row">
+              <ChampTexte label="Lieu du chantier" name="lieu" requis placeholder="Commune, adresse" autocomplete="street-address" />
+              <ChampTexte label="Date souhaitée" name="date" type="date" />
+            </div>
+            <label class="flex cursor-pointer flex-col items-center gap-1.5 rounded-champ border-[1.5px] border-dashed border-grey px-4 py-[22px] text-center transition-colors hover:bg-ground has-focus-visible:outline-2 has-focus-visible:outline-red">
+              <input type="file" name="pieces-jointes" multiple accept=".jpg,.jpeg,.png,.pdf" class="sr-only" data-fichiers />
+              <img src="/ui/formulaire/icone-envoi-fichier.svg" alt="" width="22" height="22" />
+              <span class="texte-label text-ink">Ajouter des photos ou des plans</span>
+              <span class="text-[13px] text-muted" data-fichiers-libelle>Facultatif · JPG, PNG, PDF</span>
+            </label>
+          </>
+        )}
+
+        {i === 3 && (
+          <>
+            <div class="grid gap-3.5 sm:grid-cols-2">
+              <ChampTexte label="Nom et prénom" name="nom" requis placeholder="Jean Dupont" autocomplete="name" />
+              <ChampTexte label="Entreprise / commune" name="entreprise" placeholder="Si applicable" autocomplete="organization" />
+              <ChampTexte label="E-mail" name="email" type="email" requis placeholder="nom@entreprise.lu" autocomplete="email" />
+              <ChampTexte label="Téléphone" name="telephone" type="tel" requis placeholder="+352 …" autocomplete="tel" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="group flex cursor-pointer items-start gap-3">
+                <input type="checkbox" name="consentement" required class="peer sr-only" aria-describedby="champ-consentement-erreur" />
+                <span class="flex size-[22px] shrink-0 items-center justify-center rounded-md border border-light bg-ground group-has-checked:border-red group-has-checked:bg-red peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red">
+                  <img src="/ui/formulaire/case-coche.svg" alt="" width="16" height="16" class="hidden group-has-checked:block" />
+                </span>
+                <span class="texte-sm text-ink">
+                  J’accepte que mes données soient utilisées pour traiter ma demande. Voir la{' '}
+                  <a href="/confidentialite" class="underline hover:text-red">politique de confidentialité</a>.
+                </span>
+              </label>
+              <p id="champ-consentement-erreur" data-erreur-pour="consentement" class="hidden texte-xs font-semibold text-red" />
+            </div>
+          </>
+        )}
+
+        <p data-erreur-etape class="hidden texte-sm font-semibold text-red" role="alert" />
+      </fieldset>
+    ))
+  }
+
+  <div data-erreur-envoi hidden>
+    <MessageErreur />
+  </div>
+
+  <div class="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p class="texte-xs text-muted">* Champs obligatoires</p>
+    <div class="flex flex-wrap gap-2.5">
+      <Bouton label="Retour" style="clair" data-precedent hidden />
+      <Bouton label="Continuer" fleche type="submit" data-suivant />
+      <Bouton label="Envoyer ma demande" fleche type="submit" data-envoyer hidden />
+    </div>
+  </div>
+</form>
+
+<dialog
+  id="formulaire-succes"
+  aria-label="Demande envoyée"
+  class="m-auto w-[calc(100%-32px)] max-w-[640px] bg-transparent p-0 backdrop:bg-ink/60"
+>
+  <FormulaireSucces />
+</dialog>
+
+<script>
+  const form = document.getElementById('formulaire-contact') as HTMLFormElement | null;
+  const succes = document.getElementById('formulaire-succes') as HTMLDialogElement | null;
+
+  if (form) {
+    const TOTAL = 4;
+    const panneaux = [...form.querySelectorAll<HTMLFieldSetElement>('[data-panneau]')];
+    const indicateurs = [...form.querySelectorAll<HTMLElement>('[data-indicateur]')];
+    const btnPrecedent = form.querySelector<HTMLElement>('[data-precedent]')!;
+    const btnSuivant = form.querySelector<HTMLElement>('[data-suivant]')!;
+    const btnEnvoyer = form.querySelector<HTMLButtonElement>('[data-envoyer]')!;
+    const erreurEnvoi = form.querySelector<HTMLElement>('[data-erreur-envoi]')!;
+
+    let etape = 1;
+
+    const afficher = (n: number, focus = true) => {
+      etape = n;
+      form.dataset.etape = String(n);
+      panneaux.forEach((p, i) => (p.hidden = i + 1 !== n));
+      indicateurs.forEach((li, i) => {
+        const k = i + 1;
+        li.querySelector('[data-barre]')!.className = `h-1 w-full rounded-[4px] ${k <= n ? 'bg-red' : 'bg-soft'}`;
+        const libelle = li.querySelector('[data-libelle]')!;
+        libelle.className = `hidden text-[13px] sm:block ${
+          k === n ? 'font-semibold text-ink' : k < n ? 'font-medium text-ink' : 'font-medium text-muted'
+        }`;
+        if (k === n) li.setAttribute('aria-current', 'step');
+        else li.removeAttribute('aria-current');
+      });
+      btnPrecedent.hidden = n === 1;
+      btnSuivant.hidden = n === TOTAL;
+      btnEnvoyer.hidden = n !== TOTAL;
+      erreurEnvoi.hidden = true;
+      if (focus) {
+        const titre = panneaux[n - 1].querySelector<HTMLElement>('[data-titre-etape]');
+        titre?.focus({ preventScroll: true });
+        const haut = form.getBoundingClientRect().top;
+        if (haut < 0) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    const erreurChamp = (champ: HTMLInputElement | HTMLTextAreaElement, message: string) => {
+      const p = form.querySelector<HTMLElement>(`[data-erreur-pour="${champ.name}"]`);
+      if (message) champ.setAttribute('aria-invalid', 'true');
+      else champ.removeAttribute('aria-invalid');
+      if (p) {
+        p.textContent = message;
+        p.classList.toggle('hidden', !message);
+      }
+    };
+
+    const messageChamp = (champ: HTMLInputElement | HTMLTextAreaElement) => {
+      if (champ.validity.valueMissing) {
+        return champ.type === 'checkbox' ? 'Merci d’accepter pour envoyer votre demande.' : 'Ce champ est obligatoire.';
+      }
+      if (champ.validity.typeMismatch) return 'Vérifiez le format de l’adresse e-mail.';
+      return '';
+    };
+
+    const valider = (n: number) => {
+      const panneau = panneaux[n - 1];
+      const erreurEtape = panneau.querySelector<HTMLElement>('[data-erreur-etape]')!;
+      let message = '';
+      if (n === 1 && !form.querySelector('input[name="domaine"]:checked')) {
+        message = 'Choisissez votre secteur pour continuer.';
+      }
+      if (n === 2 && !form.querySelector('input[name="solutions"]:checked')) {
+        message = 'Choisissez au moins une solution pour continuer.';
+      }
+      erreurEtape.textContent = message;
+      erreurEtape.classList.toggle('hidden', !message);
+
+      let premierInvalide: HTMLElement | null = null;
+      panneau.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required], input[type="email"]').forEach((champ) => {
+        const m = messageChamp(champ);
+        erreurChamp(champ, m);
+        if (m && !premierInvalide) premierInvalide = champ;
+      });
+      (premierInvalide as HTMLElement | null)?.focus();
+      return !message && !premierInvalide;
+    };
+
+    // Erreur effacée dès que le champ redevient valide.
+    form.addEventListener('input', (e) => {
+      const champ = e.target as HTMLInputElement | HTMLTextAreaElement;
+      if (champ.getAttribute('aria-invalid') === 'true' && !messageChamp(champ)) erreurChamp(champ, '');
+      if (champ.type === 'radio' || champ.type === 'checkbox') {
+        const erreurEtape = champ.closest('fieldset')?.querySelector<HTMLElement>('[data-erreur-etape]');
+        erreurEtape?.classList.add('hidden');
+      }
+    });
+
+    btnPrecedent.addEventListener('click', () => afficher(Math.max(1, etape - 1)));
+
+    // Noms des pièces jointes.
+    const fichiers = form.querySelector<HTMLInputElement>('[data-fichiers]');
+    const fichiersLibelle = form.querySelector<HTMLElement>('[data-fichiers-libelle]');
+    fichiers?.addEventListener('change', () => {
+      if (!fichiersLibelle) return;
+      const noms = [...(fichiers.files ?? [])].map((f) => f.name);
+      fichiersLibelle.textContent = noms.length ? noms.join(', ') : 'Facultatif · JPG, PNG, PDF';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!valider(etape)) return;
+      if (etape < TOTAL) {
+        afficher(etape + 1);
+        return;
+      }
+
+      const action = form.getAttribute('action');
+      if (action) {
+        btnEnvoyer.disabled = true;
+        try {
+          const reponse = await fetch(action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+          if (!reponse.ok) throw new Error(String(reponse.status));
+        } catch {
+          erreurEnvoi.hidden = false;
+          return;
+        } finally {
+          btnEnvoyer.disabled = false;
+        }
+      }
+
+      form.reset();
+      if (fichiersLibelle) fichiersLibelle.textContent = 'Facultatif · JPG, PNG, PDF';
+      afficher(1, false);
+      succes?.showModal();
+    });
+
+    // Présélection depuis les cartes de la page.
+    document.addEventListener('click', (e) => {
+      const declencheur = (e.target as HTMLElement).closest<HTMLElement>('[data-preselection]');
+      if (!declencheur) return;
+      const [type, valeur] = (declencheur.dataset.preselection ?? '').split(':');
+      if (type === 'domaine') {
+        const radio = form.querySelector<HTMLInputElement>(`input[name="domaine"][value="${valeur}"]`);
+        if (radio) radio.checked = true;
+        if (etape === 1) afficher(2, false);
+      }
+      if (type === 'solution') {
+        const caseSolution = form.querySelector<HTMLInputElement>(`input[name="solutions"][value="${valeur}"]`);
+        if (caseSolution) caseSolution.checked = true;
+      }
+      const grue = declencheur.dataset.grue;
+      const description = form.querySelector<HTMLTextAreaElement>('textarea[name="description"]');
+      if (grue && description && !description.value.trim()) description.value = `Grue souhaitée : ${grue}\n`;
+    });
+  }
+
+  succes?.querySelector('[data-succes-fermer]')?.addEventListener('click', () => succes.close());
+  succes?.addEventListener('click', (e) => {
+    if (e.target === succes) succes.close();
+  });
+</script>

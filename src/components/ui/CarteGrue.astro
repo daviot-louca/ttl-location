@@ -1,0 +1,45 @@
+---
+/**
+ * Carte grue (Figma « Carte grue », 2:85) : photo, type, nom, hauteur et capacité.
+ * Un clic sélectionne la grue dans le formulaire (solution « Levage » + description pré-remplie).
+ */
+import { ancres } from '../../data/navigation';
+import type { Grue } from '../../data/landing';
+
+interface Props {
+  grue: Grue;
+  class?: string;
+}
+
+const { grue, class: className } = Astro.props;
+---
+
+<a
+  href={ancres.contact}
+  data-preselection="solution:levage"
+  data-grue={grue.nom}
+  class:list={['group flex w-full flex-col overflow-hidden rounded-carte bg-white', className]}
+>
+  <div class="relative h-[334px] w-full shrink-0 overflow-hidden bg-soft">
+    <img
+      src={grue.image}
+      alt={`Grue ${grue.nom}`}
+      style={grue.cadrage ? `position:absolute;max-width:none;${grue.cadrage}` : undefined}
+      class:list={[
+        'transition-transform duration-300 group-hover:scale-[1.03]',
+        !grue.cadrage && 'size-full object-cover',
+      ]}
+      loading="lazy"
+    />
+    <p class="absolute top-3.5 left-3.5 rounded-full bg-white px-3 py-[5px] texte-xs font-semibold text-ink">
+      {grue.type}
+    </p>
+  </div>
+  <div class="flex flex-col items-start gap-2.5 px-[22px] pt-5 pb-[22px]">
+    <h3 class="titre-4 tracking-[-0.02em] text-ink">{grue.nom}</h3>
+    <p class="flex flex-wrap gap-x-5 texte text-muted">
+      <span>{grue.hauteur}</span>
+      <span>{grue.capacite}</span>
+    </p>
+  </div>
+</a>

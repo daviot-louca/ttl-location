@@ -1,0 +1,79 @@
+---
+/**
+ * En-tête de la landing (instance « En-tête V2 » 228:5048) + en-tête responsive (154:4208 / 154:4223).
+ * Navigation one-page : liens d'ancre vers les sections, pas de méga-menu.
+ * Tablette / téléphone : bouton burger qui ouvre <MenuMobile />.
+ */
+import Bouton from './Bouton.astro';
+import SelecteurLangue from './SelecteurLangue.astro';
+import MenuMobile from './MenuMobile.astro';
+import { navigationPrincipale, ancres, contact, type Langue } from '../../data/navigation';
+
+interface Props {
+  langue?: Langue;
+}
+
+const { langue = (Astro.url.pathname.startsWith('/en/') ? 'en' : Astro.url.pathname.startsWith('/de/') ? 'de' : 'fr') } = Astro.props;
+---
+
+<header class="sticky top-0 z-40 border-b border-soft bg-white lg:border-b-0">
+  <!-- Desktop ≥ 1024 px -->
+  <div class="relative mx-auto hidden max-w-360 items-center justify-between px-10 py-4 lg:flex">
+    <a href="#top" class="block h-11 w-22.5 shrink-0" aria-label="TTL Location — haut de page">
+      <img src="/ui/logo.png" alt="TTL Location" width="90" height="44" class="size-full object-contain" />
+    </a>
+
+    <nav
+      aria-label="Navigation principale"
+      class="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-9"
+    >
+      {
+        navigationPrincipale.map((lien) => (
+          <a href={lien.href} class="py-2 texte-lien text-ink transition-colors hover:text-red">
+            {lien.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="flex shrink-0 items-center gap-3">
+      <SelecteurLangue active={langue} />
+      <Bouton label="Contactez-nous" href={ancres.contact} />
+    </div>
+  </div>
+
+  <!-- Tablette (768 px) / Téléphone (390 px) -->
+  <div class="flex items-center justify-between px-5 py-3 md:px-8 md:py-3.5 lg:hidden">
+    <a href="#top" class="block h-9.25 w-19 shrink-0 md:h-11 md:w-[90px]" aria-label="TTL Location — haut de page">
+      <img src="/assets/logoFondClair.svg" alt="TTL Location" width="90" height="44" class="size-full object-contain" />
+    </a>
+    <div class="flex items-center gap-2.5 md:gap-3">
+      <div class="hidden md:block"><SelecteurLangue active={langue} /></div>
+      <a
+        href={ancres.contact}
+        class="hidden rounded-full bg-red px-[26px] py-3 texte-bouton text-white transition-colors hover:bg-darkred md:inline-flex"
+      >
+        Contactez-nous
+      </a>
+      <a
+        href={contact.telephoneHref}
+        aria-label={`Appeler le ${contact.telephone}`}
+        class="flex size-11 items-center justify-center rounded-full bg-red transition-colors hover:bg-darkred md:hidden"
+      >
+        <img src="/ui/icone-telephone.svg" alt="" width="20" height="20" />
+      </a>
+      <button
+        type="button"
+        data-menu-ouvrir
+        aria-label="Ouvrir le menu"
+        aria-controls="menu-mobile"
+        aria-expanded="false"
+        class="flex size-11 cursor-pointer items-center justify-center rounded-full bg-ink md:size-[52px]"
+      >
+        <img src="/ui/icone-burger.svg" alt="" width="22" height="22" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<MenuMobile langue={langue} />

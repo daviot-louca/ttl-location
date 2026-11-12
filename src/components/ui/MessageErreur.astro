@@ -1,0 +1,18 @@
+---
+/** Bandeau d'erreur d'envoi (Figma « Message d’erreur », 68:2242). */
+import { contact } from '../../data/navigation';
+
+interface Props {
+  message?: string;
+  class?: string;
+}
+
+const {
+  message = `L'envoi n'a pas abouti. Vérifiez les champs signalés ou appelez le ${contact.telephone}.`,
+  class: className,
+} = Astro.props;
+---
+
+<div role="alert" class:list={['w-full rounded-champ bg-red px-5 py-4', className]}>
+  <p class="texte leading-[1.45] font-semibold text-white">{message}</p>
+</div>
